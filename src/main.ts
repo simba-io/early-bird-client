@@ -5,9 +5,6 @@ import {
   AUTHENTICATION_VIEW_ID,
   createAuthenticationView,
 } from "./AuthenticationView.tsx";
-import { GAMES_VIEW_ID, createGamesView } from "./GamesView";
-import { LEADERBOARDS_VIEW_ID, createLeaderboardsView } from "./LeaderBoards";
-import { createDropTimerElement } from "./DropTimer";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -17,9 +14,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 const components = [
   { label: "Login / Register", id: AUTHENTICATION_VIEW_ID },
-  { label: "Dashboard", id: DASHBOARD_VIEW_ID },
-  { label: "Games", id: GAMES_VIEW_ID },
-  { label: "Leaderboards", id: LEADERBOARDS_VIEW_ID },
+  { label: "Dashboard", id: DASHBOARD_VIEW_ID }
 ];
 
 // View manager to handle navigation between pages
@@ -43,11 +38,7 @@ async function renderMenu(authenticated: boolean) {
   menuContainer.innerHTML = "";
   const visibleComponents = authenticated
     ? components.filter((component) => component.id !== AUTHENTICATION_VIEW_ID)
-    : components.filter(
-        (component) =>
-          component.id === AUTHENTICATION_VIEW_ID ||
-          component.id === GAMES_VIEW_ID,
-      );
+    : components.filter((component) => component.id === AUTHENTICATION_VIEW_ID);
 
   destroyMenuCanvas = await createMenuCanvas(
     menuContainer,
@@ -98,10 +89,6 @@ function createTopBar() {
   bar.style.backdropFilter = "blur(8px)";
   bar.style.zIndex = "1200";
 
-  const dropTimerController = createDropTimerElement();
-  const dropTimerElement = dropTimerController.element;
-  destroyDropTimer = dropTimerController.destroy;
-
   const button = document.createElement("button");
   button.type = "button";
   button.textContent = "Log out";
@@ -118,7 +105,6 @@ function createTopBar() {
     await supabase.auth.signOut();
   });
 
-  bar.append(dropTimerElement, button);
   document.body.appendChild(bar);
 
   topBar = bar;
@@ -132,8 +118,7 @@ function showView(viewId: string) {
 
   if (
     !isAuthenticated &&
-    viewId !== AUTHENTICATION_VIEW_ID &&
-    viewId !== GAMES_VIEW_ID
+    viewId !== AUTHENTICATION_VIEW_ID
   ) {
     viewId = AUTHENTICATION_VIEW_ID;
   }
@@ -182,33 +167,10 @@ function showView(viewId: string) {
 
   viewContainers.set(AUTHENTICATION_VIEW_ID, authenticationContainer);
 
-  // Create games view with standardized styling
-  const gamesViewContainer = createCanvasContainer(
-    mainContainer,
-    GAMES_VIEW_ID,
-  );
-
-  await createGamesView(gamesViewContainer);
-
-  viewContainers.set(GAMES_VIEW_ID, gamesViewContainer);
-  gamesViewContainerRef = gamesViewContainer;
-
-  // Create leaderboards view with standardized styling
-  const leaderboardsViewContainer = createCanvasContainer(
-    mainContainer,
-    LEADERBOARDS_VIEW_ID,
-  );
-
-  await createLeaderboardsView(leaderboardsViewContainer);
-
-  viewContainers.set(LEADERBOARDS_VIEW_ID, leaderboardsViewContainer);
-
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (gamesViewContainerRef) {
-    await createGamesView(gamesViewContainerRef, Boolean(session));
-  }
+  
   setAuthenticatedUI(Boolean(session));
   await renderMenu(Boolean(session));
 
@@ -221,9 +183,7 @@ function showView(viewId: string) {
 
   supabase.auth.onAuthStateChange((_event, sessionData) => {
     const authenticated = Boolean(sessionData);
-    if (gamesViewContainerRef) {
-      void createGamesView(gamesViewContainerRef, authenticated);
-    }
+    
     setAuthenticatedUI(authenticated);
     void renderMenu(authenticated);
     if (authenticated) {
