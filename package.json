@@ -16,10 +16,12 @@
     "@stripe/react-stripe-js": "^6.3.0",
     "@stripe/stripe-js": "^9.4.0",
     "@supabase/supabase-js": "^2.90.1",
+    "@vitejs/plugin-react": "^4.7.0",
     "bubbo-client": "github:simba-io/bubbo-client",
     "pixi.js": "^8.8.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-router-dom": "^7.18.0",
     "stripe": "^22.1.0"
   },
   "devDependencies": {
