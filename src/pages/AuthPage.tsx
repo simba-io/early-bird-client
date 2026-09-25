@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -16,8 +16,7 @@ export function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   if (user) {
-    navigate("/account");
-    return null;
+    return <Navigate to="/account" replace />;
   }
 
   async function handleSubmit(e: React.FormEvent) {
